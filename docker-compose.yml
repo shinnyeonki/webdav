@@ -1,0 +1,12 @@
+services:
+  webdav:
+    build: .
+    image: nginx-webdav
+    container_name: nginx-webdav
+    ports:
+      - "${PORT:-10201}:80"
+    env_file:
+      - .env
+    volumes:
+      - "${SHARED_FOLDER}:/data:rw"
+    restart: unless-stopped
