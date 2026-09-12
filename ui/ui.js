@@ -71,7 +71,7 @@
   var IMG = ' avif bmp gif ico jpeg jng jpg png svg svgz tif tiff wbmp webp ';
   var VID = ' 3gp 3gpp asf asx avi flv m4v mng mov mp4 mpeg mpg ts webm wmv ';
   var AUD = ' kar m4a mid midi mp3 ogg ra ';
-  var ARC = ' 7z rar zip ';
+  var ARC = ' 7z bz2 gz rar tar tbz tgz txz xz zip zst ';
   var DOC = ' doc docx htm html pdf ppt pptx xhtml xls xlsx ';
   var APPJ = ' atom js kml rss xspf ';
   function fileIcon(name) {
@@ -848,6 +848,8 @@
         return r.text();
       }).then(function (t) {
         if (my !== cardSeq) { return; }
+        // NUL이 있으면 바이너리다. 서버가 text라 우겨도 섹션 없이 끝낸다. UTF-16 텍스트는 스킵(브라우저도 깨짐).
+        if (t.indexOf('\0') !== -1) { return; }
         var cut = over || t.length > PRE_CAP;
         if (cut) { t = t.slice(0, PRE_CAP); }
         var pre = document.createElement('pre');
