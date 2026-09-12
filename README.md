@@ -122,7 +122,7 @@ DAV verb (`PROPFIND`/`PUT`/`MKCOL`/`MOVE`/`COPY`/`DELETE`)와 XML 응답은 손�
 
 ## 브라우저 UI
 
-`ui/` 3파일 (바닐라, 외부 요청 0). 디렉토리 `GET`에만 `add_after_body`로 얹고, 파일 다운로드는 건드리지 않는다. `/_ui/`는 ETag 재검증(no-cache). 1년 캐시는 ui.js 갱신 누락을 일으켜 폐기.
+`ui/` 4파일 (바닐라, 외부 요청 0). 디렉토리 `GET`에만 `add_after_body`로 얹고, 파일 다운로드는 건드리지 않는다. `/_ui/`는 1분 캐시. 디렉토리 `GET`에만 preload Link 헤더.
 
 * `shell.html` — CSS/JS 주입점. `ui.css` — 목록/메뉴/패널/모달. `ui.js` — `ui.md` 구현체 (헤더·목록·우측 패널·기록·정보·업로드·이동 모달·`refresh()`).
 * UI 규칙 (모바일 우선, `ui.md`): 상단은 타이틀+경로+로그아웃만. 추가 버튼 3개(새 폴더/파일 업로드/폴더 업로드)는 우측 패널 상단.
