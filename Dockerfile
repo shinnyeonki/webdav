@@ -28,7 +28,8 @@ RUN ./configure \
  && make install
 
 FROM alpine:3.23
-RUN apk add --no-cache pcre zlib openssl apache2-utils libxml2 libxslt
+RUN apk add --no-cache pcre zlib openssl apache2-utils libxml2 libxslt shadow \
+ && adduser -D -H -s /sbin/nologin webdav
 COPY --from=builder /usr/local/nginx /usr/local/nginx
 COPY nginx.conf /usr/local/nginx/conf/nginx.conf
 COPY ui/ /usr/share/webdav-ui/
