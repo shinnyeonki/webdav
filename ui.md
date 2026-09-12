@@ -36,7 +36,7 @@ RFC 4918 allprop 이론값과 달리 nginx(dav+dav-ext)가 실제로 주는 것�
 * `HEAD` → `Content-Type`(MIME) / `ETag` / `Accept-Ranges`.
 * 목록에서 → 경로.
 * `getcontenttype`·`getetag`은 `PROPFIND`에 없어 `HEAD` 값으로 표기한다.
-* 항목 아래 미리 보기 (HEAD `Content-Type` 실측 분기, 확장자 목록 없음): `text/html`→sandbox iframe / `image/`→img / `video/`·`audio/`→controls+metadata / `application/pdf`→embed / `text/`·`application/javascript`·`application/json`·`+xml`→전체 pre (매핑 확장자+256KB 이하는 하이라이트, 그 외素). 그 외·로드 실패는 섹션 없음. 상한 없음.
+* 항목 아래 미리 보기 (HEAD `Content-Type` 실측 분기, 확장자 목록 없음): `text/html`→sandbox iframe / `image/`→img / `video/`·`audio/`→controls+metadata / `application/pdf`→embed / `text/`·`application/javascript`·`application/json`·`+xml`→전체 pre (매핑 확장자+256KB 이하는 하이라이트, 그 외素. 100MB 렌더 캡, 초과는 앞부분만). 그 외·로드 실패는 섹션 없음.
 * 실패 시 정보 보기에 에러 1줄.
 * 48em부터는 「크게」 버튼으로 정보 보기를 목록 영역까지 넓혀 볼 수 있다(「작게」로 복귀. 「← 기록으로」를 누르면 넓힌 상태가 풀린다).
 * 「← 이전」「다음 →」으로 목록 순서대로 이전·다음 항목의 정보를 바로 볼 수 있다(처음·끝은 순환한다).

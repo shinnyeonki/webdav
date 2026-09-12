@@ -776,7 +776,7 @@
         // getlastmodified는 GMT(RFC1123)라 브라우저 현지시간으로 바꾼다.
         rows.push(['수정일', gmtFull(tag('getlastmodified'))]);
         drawCard(rows, e.name);
-        if (!isDir) { preview($('.card'), e, ct, my); }
+        if (!isDir) { preview($('.card'), e, ct, my, parseInt(hd.headers.get('Content-Length') || '0', 10) || 0); }
       });
     }).catch(function (err) { if (my !== cardSeq) { return; } if (!isAuth(err)) { drawCard([['오류', err.message]], e.name); } });
   }
@@ -789,7 +789,7 @@
 
   // 정보 카드 미리 보기. 판정은 HEAD Content-Type 실측, 확장자 목록 없음.
   // 순서를 지켜야 한다: text/html이 text/에도 걸린다.
-  function preview(box, e, ct, my) {
+  function preview(box, e, ct, my, size) {
     if (my !== cardSeq) { return; }
     function section(tag) {
       var sec = node('div', 'pv', []);
@@ -835,16 +835,21 @@
       if (!m) { return null; }
       return HL[m[1].toLowerCase()] || null;
     }
-    // 하이라이트 렌더 상한 256KB. 내용은 통째로 (pre 상한 없음 결정 유지), span 변환만 생략.
+    // 하이라이트 렌더 상한 256KB. span 변환만 생략, 내용은 PRE_CAP까지.
     var HL_CAP = 262144;
+    // pre 렌더 캡 100MB. 256KB↓=색+전체, ~100MB=素+전체, 100MB↑=素+앞부분. 모바일 저사양은 무거울 수 있음.
+    var PRE_CAP = 104857600;
     // text-like application/*도 pre: 서버 실측 기준 javascript·json·+xml.
     if (ct.indexOf('text/') === 0 || ct === 'application/javascript' || ct === 'application/json' || ct.slice(-4) === '+xml') {
-      // 상한 없음(결정). 통째로 읽어 pre에 붓는다.
-      req('GET', e.url).then(function (r) {
+      // 렌더 캡 100MB. Range 206이면 앞만 오고, 무시하고 200으로 오면 잘라낸다.
+      var over = size > PRE_CAP;
+      req('GET', e.url, undefined, over ? { Range: 'bytes=0-' + (PRE_CAP - 1) } : {}).then(function (r) {
         if (!r.ok) { throw new Error(r.status); }
         return r.text();
       }).then(function (t) {
         if (my !== cardSeq) { return; }
+        var cut = over || t.length > PRE_CAP;
+        if (cut) { t = t.slice(0, PRE_CAP); }
         var pre = document.createElement('pre');
         pre.className = 'pv-pre';
         // hljs는 입력 이스케이프 후 span을 뱉어서 innerHTML이 안전하다. lib 실패·미매핑·초과는素.
@@ -857,6 +862,7 @@
         } else {
           pre.appendChild(txt(t));
         }
+        if (cut) { var capMB = Math.round(PRE_CAP / 1048576) + 'MB'; pre.appendChild(txt(size ? '\n… (전체 ' + humanSize(size) + ' 중 앞 ' + capMB + '만 표시)' : '\n… (앞 ' + capMB + '만 표시)')); }
         section(pre);
       }).catch(function () { /* 섹션 없음 */ });
     }
