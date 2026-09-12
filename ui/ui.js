@@ -505,6 +505,8 @@
   }
   document.addEventListener('click', function (ev) {
     var near = function (sel) { return ev.target.closest ? ev.target.closest(sel) : null; };
+    // 열린 메뉴가 있으면 바깥 탭은 닫기로만 쓴다. 행 열기·다른 메뉴 직행 없음(모바일 바텀시트 오탭 방지).
+    if (document.querySelector('.f-menu.lit') && !near('.f-menu')) { hideMenus(); return; }
     var inf = near('[data-info]');
     if (inf) { hideMenus(); Commands.info(findEntry(inf.getAttribute('data-info'))); return; }
     var dots = near('[data-dots]');
