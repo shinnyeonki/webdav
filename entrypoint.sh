@@ -12,6 +12,8 @@ htpasswd -b -B -C 10 -c "$HTPASSWD" "$USERNAME" "$PASSWORD"
 mkdir -p /data
 # 첫 기동/권한 깨짐 대비. 대용량 트리면 시간 걸릴 수 있음
 chown -R "$PUID:$PGID" /data || true
+# 호스트에서 넣은 파일 모드가 600/700이면 워커(nobody)가 못 읽어 403. 읽기+디렉토리 실행만 보장(쓰기·소유자 불변).
+chmod -R a+rX /data || true
 
 # 설정 오류 시 무보호 기동 방지.
 /usr/local/nginx/sbin/nginx -t || exit 1
