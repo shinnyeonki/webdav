@@ -211,12 +211,19 @@ button.bad:hover { border-color: var(--danger); color: var(--danger); box-shadow
 /* card overlay: 길면 카드 안에서 스크롤 */
 .card { flex: 1; min-height: 0; overflow-y: auto; }
 .card h3 { font-family: var(--serif); margin: 10px 0 4px; overflow-wrap: anywhere; font-size: 17px; }
-.c-prevnext { display: flex; gap: 8px; margin-top: 8px; }
-.c-prevnext button { flex: 1; }
-.c-nav { display: flex; gap: 8px; align-items: center; }
-.c-nav button:first-child { flex: 1; }
+.tabs { display: flex; gap: 20px; padding: 0 4px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+.tabs .tab { flex: 1; background: none; border: none; border-radius: 10px 10px 0 0; padding: 10px 2px; font-size: 14px; text-align: center; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; -webkit-tap-highlight-color: transparent; }
+.tabs .tab:active { background: var(--accent-soft); }
+.side.wide .tabs { display: none; }
+.tabs .tab.on { color: var(--ink); border-bottom-color: var(--accent); font-weight: 700; }
+.c-title { display: none; }
+.side.wide .c-title { display: block; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--serif); font-size: 15px; }
 .side.wide .c-nav { justify-content: flex-end; }
-.side.wide .c-nav button:first-child { flex: none; }
+.side.wide .c-nav button { flex: none; }
+.side.wide .card h3 { display: none; }
+.c-nav { display: flex; gap: 8px; align-items: center; }
+.c-nav button { flex: 1; }
+.c-nav button:last-child { flex: none; }
 .kv {
   display: grid;
   grid-template-columns: 64px 1fr;

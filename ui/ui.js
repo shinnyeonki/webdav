@@ -352,7 +352,7 @@
   function shell() {
     var path = node('span', 'bar-path', [txt(readable(home))]);
     var quit = iconBtn('log-out', 'quit', '브라우저 저장 계정을 지웁니다. 완전 로그아웃은 브라우저 종료', bye);
-    var menu = stateBtn('menu-btn', 'menu', 'x', '관리 패널', function (ev) { ev.stopPropagation(); root.classList.toggle('show-side'); });
+    var menu = stateBtn('menu-btn', 'menu', 'x', '우측 탭', function (ev) { ev.stopPropagation(); root.classList.toggle('show-side'); });
     root.appendChild(node('div', 'bar', [
       node('div', 'bar-left', [node('span', 'bar-title', [txt('WebDAV')]), path]),
       quit,
@@ -360,7 +360,7 @@
     ]));
     root.appendChild(node('div', 'cols', [
       node('div', 'files'),
-      node('aside', 'side', [node('div', 'adder'), node('div', 'feed'), node('div', 'card hidden')])
+      node('aside', 'side', [node('div', 'tabs', [btn('작업', 'tab on', function () { showTab('work'); }), btn('정보', 'tab', function () { showTab('info'); })]), node('div', 'adder'), node('div', 'feed'), node('div', 'card hidden')])
     ]));
     adder();
   }
@@ -506,7 +506,7 @@
   document.addEventListener('click', function (ev) {
     var near = function (sel) { return ev.target.closest ? ev.target.closest(sel) : null; };
     // 열린 메뉴가 있으면 바깥 탭은 닫기로만 쓴다. 행 열기·다른 메뉴 직행 없음(모바일 바텀시트 오탭 방지).
-    if (document.querySelector('.f-menu.lit') && !near('.f-menu')) { hideMenus(); return; }
+    if (document.querySelector('.f-menu.lit') && !near('.f-menu')) { ev.preventDefault(); hideMenus(); return; }
     var inf = near('[data-info]');
     if (inf) { hideMenus(); Commands.info(findEntry(inf.getAttribute('data-info'))); return; }
     var dots = near('[data-dots]');
@@ -719,15 +719,7 @@
   function drawCard(rows, title) {
     var box = $('.card');
     box.textContent = '';
-    var nav = node('div', 'c-nav', []);
-    nav.appendChild(btn('← 기록으로', '', toFeed));
-    nav.appendChild(stateBtn('wide-btn', 'expand', 'minimize-2', '정보 보기 크기', toggleWide));
-    box.appendChild(nav);
-    var pn = node('div', 'c-prevnext', [
-      btn('← 이전', '', function () { stepInfo(-1); }),
-      btn('다음 →', '', function () { stepInfo(1); })
-    ]);
-    box.appendChild(pn);
+    box.appendChild(cardNav(title));
     var h3 = document.createElement('h3');
     h3.appendChild(txt(title));
     box.appendChild(h3);
@@ -739,11 +731,32 @@
       ]));
     });
   }
-  function toFeed() {
-    $('.side').classList.remove('wide');
-    $('.adder').classList.remove('hidden');
-    $('.feed').classList.remove('hidden');
-    $('.card').classList.add('hidden');
+  function cardNav(title) {
+    var nav = node('div', 'c-nav', []);
+    if (title) { nav.appendChild(node('span', 'c-title', [txt(title)])); }
+    nav.appendChild(btn('← 이전', '', function () { stepInfo(-1); }));
+    nav.appendChild(btn('다음 →', '', function () { stepInfo(1); }));
+    nav.appendChild(stateBtn('wide-btn', 'expand', 'minimize-2', '정보 탭 크기', toggleWide));
+    return nav;
+  }
+  var infoLoaded = false;
+  function showTab(which) {
+    var info = which === 'info';
+    var tabs = document.querySelectorAll('.tabs .tab');
+    if (tabs[0]) { tabs[0].classList.toggle('on', !info); }
+    if (tabs[1]) { tabs[1].classList.toggle('on', info); }
+    $('.adder').classList.toggle('hidden', info);
+    $('.feed').classList.toggle('hidden', info);
+    $('.card').classList.toggle('hidden', !info);
+    if (!info) { $('.side').classList.remove('wide'); }
+    else if (!infoLoaded) { drawEmpty(); }
+  }
+  function drawEmpty() {
+    var box = $('.card');
+    box.textContent = '';
+    box.appendChild(cardNav(null));
+    box.appendChild(node('div', 'dim', [txt('아직 보여줄 정보가 없습니다.')]));
+    box.appendChild(node('div', 'dim', [txt('목록에서 ! 또는 ⋯ → 정보 탭을 누르세요.')]));
   }
   // ! 연타 시 이전 비동기 체인이 늦게 덮어쓰는 레이스 방지. 최신 run만 그린다.
   var cardSeq = 0;
@@ -751,9 +764,8 @@
     curUrl = e.url;
     var my = ++cardSeq;
     root.classList.add('show-side');
-    $('.adder').classList.add('hidden');
-    $('.feed').classList.add('hidden');
-    $('.card').classList.remove('hidden');
+    infoLoaded = true;
+    showTab('info');
     drawCard([['…', '불러오는 중...']], e.name);
     davXml('PROPFIND', e.url, '0', PROPFIND_BODY, '정보 실패').then(function (doc) {
       if (my !== cardSeq) { return null; }
