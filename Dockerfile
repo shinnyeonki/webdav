@@ -18,6 +18,7 @@ RUN ./configure \
       --with-compat \
       --with-cc-opt="-Wno-error=unterminated-string-initialization" \
       --with-threads \
+      --with-http_realip_module \
       --with-http_dav_module \
       --with-http_addition_module \
       --with-http_slice_module \
